@@ -1,15 +1,19 @@
 {
-  "name": "clawdia",
+  "name": "@tahamansoor/clawdia",
   "version": "0.0.1",
   "description": "a light-weight fast nodejs back-end framework",
   "repository": {
-    "url": "https://github.com/tahamansoor/clawdia"
+    "type": "git",
+    "url": "https://github.com/tahamansoor/clawdia.git"
   },
   "main": "dist/index.js",
+  "types": "dist/types/index.d.ts",
+  "files": [
+    "dist"
+  ],
   "scripts": {
-    "dev": "ts-node src/index.ts",
     "build": "tsc",
-    "start": "node dist/index.js"
+    "publish": "npm run build && npm publish"
   },
   "author": "Taha Mansoor",
   "license": "ISC",
