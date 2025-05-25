@@ -4,8 +4,8 @@ import { Router } from "..";
 export interface ServerConfig {
   port?: number;
   globalMiddleware?: Middleware[];
-  routers: (typeof Router)[];
-  db: {
+  routers?: (typeof Router)[];
+  db?: {
     connectionURI: string;
     options?: PoolOptions;
   };

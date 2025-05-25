@@ -1,13 +1,13 @@
 {
   "name": "@tahamansoor/clawdia",
-  "version": "0.0.1",
+  "version": "0.0.3",
   "description": "a light-weight fast nodejs back-end framework",
   "repository": {
     "type": "git",
     "url": "https://github.com/tahamansoor/clawdia.git"
   },
   "main": "dist/index.js",
-  "types": "dist/types/index.d.ts",
+  "types": "dist/index.d.ts",
   "files": [
     "dist"
   ],

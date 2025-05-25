@@ -1,5 +1,5 @@
 import { createServer, IncomingMessage } from "node:http";
-import { cleanPath, getMetaData } from "./helpers";
+import { cleanPath, getMetaData, showBanner } from "./helpers";
 import "reflect-metadata";
 import {
   Middleware,
@@ -13,24 +13,28 @@ import {
 import { HttpMethods } from "./enums";
 import { Pool } from "pg";
 import { MODEL_KEY, ROUTER_CONFIG_KEY, ROUTES_KEY } from "./constants";
+import { COLORS } from "./constants";
+import { LogLevel } from "./types";
 
 export class Clawdia {
   port: number;
   globalMiddleware?: Middleware[];
-  routers: Router<any>[];
-  connectionURI: string;
+  routers?: Router<any>[] = [];
+  connectionURI?: string;
   db?: Pool;
   private readonly routeMap: Map<string, Function> = new Map();
   constructor(config: ServerConfig) {
     this.port = config.port ?? 3003;
     this.globalMiddleware = config.globalMiddleware;
-    this.routers = config.routers.map((routerClass) => new routerClass());
-    this.connectionURI = config.db.connectionURI;
+    this.routers = config?.routers?.map((routerClass) => new routerClass());
+    this.connectionURI = config?.db?.connectionURI;
     this.db = new Pool({
       connectionString: this.connectionURI,
-      ...config.db.options,
+      ...config?.db?.options,
     });
     Model.useDB(this.db);
+
+    showBanner();
   }
 
   async listen() {
@@ -92,7 +96,7 @@ export class Clawdia {
     });
   }
   private createRouteMap() {
-    for (const router of this.routers) {
+    for (const router of this.routers ?? []) {
       const methodNames = this.getAllMethodNames(router);
       for (const methodName of methodNames) {
         const method = (router as any)[methodName];
@@ -144,6 +148,7 @@ export class Clawdia {
 }
 
 export class Router<T extends Model> implements IRouter<T> {
+  private logger = Logger;
   routeName: string;
   model: T;
   private config: RouterConfig<T>;
@@ -152,6 +157,7 @@ export class Router<T extends Model> implements IRouter<T> {
     this.routeName =
       "/" + (this.config.route ?? this.constructor.name.toLowerCase());
     this.model = this.config.model;
+    this.logger.info(`INITIALIZED ${this.constructor.name}`);
   }
 }
 
@@ -232,5 +238,29 @@ export abstract class Model {
       [id],
     );
     return (result.rowCount ?? 0) > 0;
+  }
+}
+export class Logger {
+  private static format(level: LogLevel, message: string, context?: string) {
+    const timestamp = `${COLORS.TIMESTAMP}${new Date().toISOString()}${COLORS.RESET}`;
+    const levelColor = COLORS[level] ?? COLORS.CONTEXT;
+    const ctx = context ? `${COLORS.CONTEXT}[${context}]${COLORS.RESET}` : "";
+    return `${timestamp} ${levelColor}[${level}]${COLORS.RESET} ${ctx} ${message}`;
+  }
+
+  static info(message: string, context?: string) {
+    console.log(this.format("INFO", message, context));
+  }
+
+  static warn(message: string, context?: string) {
+    console.warn(this.format("WARN", message, context));
+  }
+
+  static error(message: string, context?: string) {
+    console.error(this.format("ERROR", message, context));
+  }
+
+  static debug(message: string, context?: string) {
+    console.debug(this.format("DEBUG", message, context));
   }
 }
