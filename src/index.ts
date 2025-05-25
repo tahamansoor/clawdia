@@ -29,11 +29,13 @@ export class Clawdia {
     this.globalMiddleware = config.globalMiddleware;
     this.routers = config?.routers?.map((routerClass) => new routerClass());
     this.connectionURI = config?.db?.connectionURI;
-    this.db = new Pool({
-      connectionString: this.connectionURI,
-      ...config?.db?.options,
-    });
-    Model.useDB(this.db);
+    if (this.connectionURI) {
+      this.db = new Pool({
+        connectionString: this.connectionURI,
+        ...config?.db?.options,
+      });
+      Model.useDB(this.db);
+    }
 
     showBanner();
   }
