@@ -1,8 +1,8 @@
 import { Pool } from "pg";
 import { MODEL_KEY } from "../constants";
-import { getMetaData } from "helpers";
+import { getMetaData } from "../helpers";
 
-export abstract class Model {
+export abstract class BaseModel {
   static db: Pool;
 
   static useDB(pool: Pool) {
@@ -14,14 +14,16 @@ export abstract class Model {
     return config?.name ?? this.name.toLowerCase() + "s";
   }
 
-  static async findAll<T>(this: { new (): T } & typeof Model): Promise<T[]> {
+  static async findAll<T>(
+    this: { new (): T } & typeof BaseModel,
+  ): Promise<T[]> {
     const table = this.getTableName();
     const result = await this.db.query(`SELECT * FROM ${table}`);
     return result.rows as T[];
   }
 
   static async findOne<T>(
-    this: { new (): T } & typeof Model,
+    this: { new (): T } & typeof BaseModel,
     where: Partial<T>,
   ): Promise<T | null> {
     const table = this.getTableName();
@@ -38,7 +40,7 @@ export abstract class Model {
   }
 
   static async create<T>(
-    this: { new (): T } & typeof Model,
+    this: { new (): T } & typeof BaseModel,
     data: Partial<T>,
   ): Promise<T> {
     const table = this.getTableName();

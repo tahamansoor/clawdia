@@ -1,19 +1,26 @@
-import { ROUTER_CONFIG_KEY } from "@constants/router-config.constant";
-import { getMetaData } from "helpers";
-import { IRouter, RouterConfig } from "interfaces";
-import { Logger } from "logger";
-import { Model } from "orm";
+import { ROUTER_CONFIG_KEY } from "../constants";
+import { getMetaData } from "../helpers";
+import { IRouter, RouterConfigOptions } from "../interfaces";
+import { Logger } from "../logger";
+import { BaseModel } from "../orm";
 
-export class Router<T extends Model> implements IRouter<T> {
+export abstract class Router<TModel extends typeof BaseModel>
+  implements IRouter<TModel>
+{
   private logger = Logger;
   routeName: string;
-  model: T;
-  private config: RouterConfig<T>;
+  private config: RouterConfigOptions<TModel>;
   constructor() {
     this.config = getMetaData(this.constructor, ROUTER_CONFIG_KEY);
     this.routeName =
       "/" + (this.config.route ?? this.constructor.name.toLowerCase());
-    this.model = this.config.model;
     this.logger.info(`INITIALIZED ${this.constructor.name}`);
+  }
+  get model(): TModel {
+    const config: RouterConfigOptions<TModel> = getMetaData(
+      this.constructor,
+      ROUTER_CONFIG_KEY,
+    );
+    return config.model;
   }
 }

@@ -1,25 +1,25 @@
 import { ROUTES_KEY } from "../constants";
-import { HttpMethods } from "enums";
-import { cleanPath, getMetaData, showBanner } from "helpers";
+import { HttpMethods } from "../enums";
+import { cleanPath, getMetaData, showBanner } from "../helpers";
 import {
   Middleware,
   RequestContext,
   ResponseContext,
   RouteDefinition,
   ServerConfig,
-} from "interfaces";
-import { Logger } from "logger";
+} from "../interfaces";
+import { Logger } from "../logger";
 import { IncomingMessage } from "node:http";
 import { createServer } from "node:http";
-import { Model } from "orm";
+import { BaseModel } from "../orm";
 import { Pool } from "pg";
-import { Router } from "router";
+import { Router } from "../router";
 
 export class Clawdia {
   private logger = Logger;
   port: number;
   globalMiddleware?: Middleware[];
-  routers?: Router<any>[] = [];
+  routers?: Router<typeof BaseModel>[] = [];
   connectionURI?: string;
   db?: Pool;
   private readonly routeMap: Map<string, Function> = new Map();
@@ -33,7 +33,7 @@ export class Clawdia {
         connectionString: this.connectionURI,
         ...config?.db?.options,
       });
-      Model.useDB(this.db);
+      BaseModel.useDB(this.db);
     }
 
     showBanner();

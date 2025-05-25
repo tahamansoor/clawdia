@@ -4,3 +4,4 @@ export * from "./patch-method.decorator";
 export * from "./post-method.decorator";
 export * from "./put-method.decorator";
 export * from "./model-method.decorator";
+export * from "./router-config.decorator";

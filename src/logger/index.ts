@@ -1,5 +1,5 @@
 import { COLORS } from "../constants";
-import { LogLevel } from "types";
+import { LogLevel } from "../types";
 
 export class Logger {
   private static format(level: LogLevel, message: string, context?: string) {

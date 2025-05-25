@@ -1,10 +1,11 @@
 import { PoolOptions } from "pg";
 import { Middleware } from "./middleware.interface";
-import { Router } from "router";
+import { Router } from "../router";
+import { BaseModel } from "../orm";
 export interface ServerConfig {
   port?: number;
   globalMiddleware?: Middleware[];
-  routers?: (typeof Router)[];
+  routers?: (new () => Router<typeof BaseModel>)[];
   db?: {
     connectionURI: string;
     options?: PoolOptions;

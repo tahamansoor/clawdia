@@ -7,7 +7,7 @@
     "url": "https://github.com/tahamansoor/clawdia.git"
   },
   "main": "dist/index.js",
-  "types": "dist/index.d.ts",
+  "types": "dist/types-defs/index.d.ts",
   "files": [
     "dist"
   ],

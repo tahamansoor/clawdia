@@ -1,4 +1,4 @@
-import { Logger } from "logger";
+import { Logger } from "../logger";
 import { readFileSync } from "fs";
 import { join } from "path";
 
