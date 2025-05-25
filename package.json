@@ -1,6 +1,6 @@
 {
   "name": "@tahamansoor/clawdia",
-  "version": "0.0.6",
+  "version": "0.0.7",
   "description": "a light-weight fast nodejs back-end framework",
   "repository": {
     "type": "git",
