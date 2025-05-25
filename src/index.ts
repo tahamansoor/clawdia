@@ -17,6 +17,7 @@ import { COLORS } from "./constants";
 import { LogLevel } from "./types";
 
 export class Clawdia {
+  private logger = Logger;
   port: number;
   globalMiddleware?: Middleware[];
   routers?: Router<any>[] = [];
@@ -43,7 +44,7 @@ export class Clawdia {
         await this.db.query("SELECT 1").catch((error) => {
           throw error;
         });
-        console.log("🟢 Clawdia connected to the database");
+        this.logger.info("Clawdia connected to the database");
       }
       this.createRouteMap();
       const server = createServer(async (req, res) => {
@@ -69,15 +70,16 @@ export class Clawdia {
         try {
           await method(reqCtx, resCtx);
         } catch (err) {
-          console.error("Error handling request:", err);
+          this.logger.error("Error handling request:", JSON.stringify(err));
           resCtx.return(500, { message: "Internal Server Error" });
         }
       });
 
       server.listen(this.port, () => {
-        console.log(`Clawdia is purring at http://localhost:${this.port}`);
+        this.logger.info(`Clawdia is purring at http://localhost:${this.port}`);
       });
     } catch (error) {
+      this.logger.error("Error starting server:", JSON.stringify(error));
       throw error;
     }
   }
