@@ -2,6 +2,9 @@
   "name": "clawdia",
   "version": "0.0.1",
   "description": "a light-weight fast nodejs back-end framework",
+  "repository": {
+    "url": "https://github.com/tahamansoor/clawdia"
+  },
   "main": "dist/index.js",
   "scripts": {
     "dev": "ts-node src/index.ts",
