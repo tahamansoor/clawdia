@@ -1,4 +1,4 @@
-import { Logger } from "../index";
+import { Logger } from "logger";
 import { readFileSync } from "fs";
 import { join } from "path";
 
@@ -21,7 +21,7 @@ export function showBanner() {
    / ____// /    /   || |     / // __ \ /  _//   |
   / /    / /    / /| || | /| / // / / / / / / /| |
  / /___ / /___ / ___ || |/ |/ // /_/ /_/ / / ___ |
- \____//_____//_/  |_||__/|__//_____//___//_/  |_|🐾
+ \____//_____//_/  |_||__/|__//_____//___//_/  |_| 🐾
 
       Framework:     Clawdia v${clawdiaPkg.version || "?"}
       Project Name:  ${projectPkg.name || "Unknown"}
