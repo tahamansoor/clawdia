@@ -22,3 +22,10 @@ const app = new Clawdia({
 });
 
 app.listen();
+```
+
+Look at the [example](/examples)
+
+## Contributing
+
+We welcome contributions from everyone! Please read our [contribution guidelines](CONTRIBUTION.md) before getting started.
