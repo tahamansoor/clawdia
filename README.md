@@ -24,7 +24,7 @@ const app = new Clawdia({
 app.listen();
 ```
 
-Look at the [example](/examples)
+Look at the [example](/src/examples)
 
 ## Contributing
 
