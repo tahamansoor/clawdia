@@ -8,6 +8,6 @@ export interface ServerConfig {
   routers?: (new () => Router<typeof BaseModel>)[];
   db?: {
     connectionURI: string;
-    options?: PoolOptions;
+    options?: Partial<PoolOptions>;
   };
 }

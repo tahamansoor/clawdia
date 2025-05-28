@@ -1,13 +1,13 @@
 import { RouteDefinition } from "../interfaces";
 import { ROUTES_KEY } from "../constants";
-import "reflect-metadata";
 import { HttpMethods } from "../enums";
 
 export function Put(path: string) {
-  return function (target: any, propertyKey: string) {
+  return function (context: object, target: any) {
     const routes: RouteDefinition[] =
-      Reflect.getMetadata(ROUTES_KEY, target.constructor) || [];
-    routes.push({ method: HttpMethods.PUT, path, handlerName: propertyKey });
-    Reflect.defineMetadata(ROUTES_KEY, routes, target.constructor);
+      Reflect.getMetadata(ROUTES_KEY, context) || [];
+
+    routes.push({ method: HttpMethods.POST, path, handlerName: target });
+    Reflect.defineMetadata(ROUTES_KEY, routes, context);
   };
 }

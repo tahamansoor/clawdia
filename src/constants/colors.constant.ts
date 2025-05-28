@@ -6,4 +6,6 @@ export const COLORS = {
   DEBUG: "\x1b[35m", // Magenta
   CONTEXT: "\x1b[90m", // Grey
   TIMESTAMP: "\x1b[2m", // Dim
+  SUCCESS: "\x1b[32m", // Green
+  TRACE: "\x1b[34m", // Blue
 };

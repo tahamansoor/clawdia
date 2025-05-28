@@ -21,7 +21,7 @@ export function showBanner() {
    / ____// /    /   || |     / // __ \ /  _//   |
   / /    / /    / /| || | /| / // / / / / / / /| |
  / /___ / /___ / ___ || |/ |/ // /_/ /_/ / / ___ |
- \____//_____//_/  |_||__/|__//_____//___//_/  |_| 🐾
+ \____//_____//_/  |_||__/|__//_____//___//__/ |_| 🐾
 
       Framework:     Clawdia v${clawdiaPkg.version || "?"}
       Project Name:  ${projectPkg.name || "Unknown"}
@@ -30,6 +30,5 @@ export function showBanner() {
       Started At:    ${now}
   `;
 
-  console.log(banner);
   Logger.info("Clawdia is purring... ready to claw into action.", "Clawdia");
 }
