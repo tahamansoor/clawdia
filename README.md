@@ -28,4 +28,4 @@ Look at the [example](/src/examples)
 
 ## Contributing
 
-We welcome contributions from everyone! Please read our [contribution guidelines](CONTRIBUTION.md) before getting started.
+We welcome contributions from everyone! Please read our [contribution guidelines](CONTRIBUTING.md) before getting started.
