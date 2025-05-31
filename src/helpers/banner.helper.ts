@@ -31,4 +31,5 @@ export function showBanner() {
   `;
 
   Logger.info("Clawdia is purring... ready to claw into action.", "Clawdia");
+  Logger.success(banner);
 }

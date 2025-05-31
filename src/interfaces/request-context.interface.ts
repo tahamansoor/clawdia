@@ -3,4 +3,5 @@ export interface RequestContext {
   headers: Record<string, string>;
   body: any;
   raw: IncomingMessage;
+  params?: Record<string, string>;
 }

@@ -17,17 +17,17 @@ import { Router } from "../router";
 
 /**
  * Clawdia - A lightweight, fast Node.js backend framework
- * 
+ *
  * Clawdia provides a streamlined approach to building REST APIs with TypeScript,
  * featuring automatic route registration, middleware support, and PostgreSQL integration.
- * 
+ *
  * Core features:
  * - Decorator-based route registration
  * - Middleware pipeline for request processing
  * - PostgreSQL database integration
  * - Model-based ORM with automatic CRUD operations
  * - Type-safe request and response handling
- * 
+ *
  * @example
  * ```typescript
  * // Basic server setup
@@ -39,7 +39,7 @@ import { Router } from "../router";
  *     connectionURI: "postgresql://user:password@localhost:5432/mydb"
  *   }
  * });
- * 
+ *
  * server.listen();
  * ```
  */
@@ -49,44 +49,44 @@ export class Clawdia {
    * @private
    */
   private logger = Logger;
-  
+
   /**
    * The port number the server will listen on
    */
   port: number;
-  
+
   /**
    * Global middleware applied to all routes
    * These are executed in order before route handlers
    */
   globalMiddleware?: Middleware[];
-  
+
   /**
    * Array of router instances registered with the application
    * Each router contains route handlers for a specific resource
    */
   routers?: Router<typeof BaseModel>[] = [];
-  
+
   /**
    * Database connection string for PostgreSQL
    */
   connectionURI?: string;
-  
+
   /**
    * PostgreSQL connection pool instance
    */
   db?: Pool;
-  
+
   /**
    * Internal mapping of route patterns to handler functions
    * Format: `${HttpMethod}:${path}` -> handlerFunction
    * @private
    */
   private readonly routeMap: Map<string, Function> = new Map();
-  
+
   /**
    * Creates a new Clawdia server instance
-   * 
+   *
    * @param {ServerConfig} config - Server configuration options
    * @param {number} [config.port=3003] - Port number to listen on
    * @param {Middleware[]} [config.globalMiddleware] - Array of global middleware
@@ -94,7 +94,7 @@ export class Clawdia {
    * @param {Object} [config.db] - Database configuration
    * @param {string} [config.db.connectionURI] - PostgreSQL connection string
    * @param {Object} [config.db.options] - Additional pg.Pool options
-   * 
+   *
    * @example
    * ```typescript
    * const server = new Clawdia({
@@ -124,27 +124,23 @@ export class Clawdia {
 
   /**
    * Starts the HTTP server and initializes all components
-   * 
-   * This method:
-   * 1. Connects to the database (if configured)
-   * 2. Builds the route map from registered routers
-   * 3. Creates an HTTP server to handle incoming requests
-   * 4. Starts listening on the configured port
-   * 
+   *
+   *
    * @returns {Promise<void>} A promise that resolves when the server starts
-   * 
+   *
    * @throws {Error} If database connection fails
    * @throws {Error} If route mapping fails
    * @throws {Error} If server initialization fails
-   * 
+   *
    * @example
    * ```typescript
+   * import { logger } from 'clawdia';
    * const server = new Clawdia({...});
-   * 
+   *
    * // Start the server
    * server.listen()
-   *   .then(() => console.log('Server is running'))
-   *   .catch(err => console.error('Failed to start server:', err));
+   *   .then(() => logger.log('Server is running'))
+   *   .catch(err => logger.error('Failed to start server:', err));
    * ```
    */
   async listen() {
@@ -195,17 +191,18 @@ export class Clawdia {
         this.logger.info(`Clawdia is purring at http://localhost:${this.port}`);
       });
     } catch (error) {
-      this.logger.error("Error starting server:", JSON.stringify(error));
+      console.error(error);
+      this.logger.error("Error starting server:", error as any);
       throw error;
     }
   }
 
   /**
    * Parses the request body from an IncomingMessage
-   * 
+   *
    * Reads the request body stream and attempts to parse it as JSON.
    * If parsing fails, returns an empty object.
-   * 
+   *
    * @param {IncomingMessage} req - The HTTP request object
    * @returns {Promise<any>} The parsed request body or an empty object
    * @private
@@ -225,12 +222,12 @@ export class Clawdia {
   }
   /**
    * Builds the internal route map from registered routers
-   * 
+   *
    * This method:
    * 1. Iterates through all registered routers
    * 2. Extracts methods with route metadata
    * 3. Maps HTTP method + path patterns to handler functions
-   * 
+   *
    * @private
    * @throws {Error} If route metadata is missing or invalid
    */
@@ -256,10 +253,10 @@ export class Clawdia {
 
   /**
    * Retrieves all method names from an object including inherited ones
-   * 
+   *
    * Traverses the prototype chain to find all methods, excluding
    * special properties like 'constructor', 'model', etc.
-   * 
+   *
    * @param {any} obj - The object to extract method names from
    * @returns {string[]} Array of method names
    * @private
@@ -268,12 +265,11 @@ export class Clawdia {
     const methodNames: string[] = [];
     let currentObj = obj;
 
-    // Traverse the prototype chain until you reach Object.prototype
     while (currentObj && currentObj !== Object.prototype) {
       const properties = Object.getOwnPropertyNames(currentObj);
 
       for (const prop of properties) {
-        // Exclude 'constructor' as it's not a regular method you'd typically want
+        // Exclude 'constructor', 'model', 'path', 'logger'
         if (
           prop !== "constructor" &&
           prop !== "model" &&
@@ -287,16 +283,15 @@ export class Clawdia {
       currentObj = Object.getPrototypeOf(currentObj);
     }
 
-    // Use a Set to ensure uniqueness, then convert back to an array
     return Array.from(new Set(methodNames));
   }
 
   /**
    * Finds the appropriate route handler for the given HTTP method and URL
-   * 
+   *
    * Uses the internal route map to look up the handler function that
    * matches the request's HTTP method and path.
-   * 
+   *
    * @param {string} httpMethod - The HTTP method (GET, POST, etc.)
    * @param {string} url - The request URL path
    * @returns {Function|undefined} The matching handler function or undefined if not found
@@ -309,10 +304,10 @@ export class Clawdia {
   }
   /**
    * Executes a series of middleware functions in sequence
-   * 
+   *
    * Processes each middleware in the array, passing the request and response
    * contexts. If a middleware doesn't call next(), the chain stops.
-   * 
+   *
    * @param {Middleware[]} middlewares - Array of middleware to execute
    * @param {RequestContext} reqCtx - The request context
    * @param {ResponseContext} resCtx - The response context
