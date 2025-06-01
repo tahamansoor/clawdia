@@ -17,8 +17,7 @@ const server = new Clawdia({
   routers: [UserRouter], // list of routers
   db: {
     // database configuration
-    connectionURI:
-      "postgresql://neondb_owner:KWGB9vQnf1ET@ep-floral-credit-a5227uyn-pooler.us-east-2.aws.neon.tech/neondb?sslmode=require",
+    connectionURI: process.env.DATABASE_URL!,
     options: {
       query_timeout: 100000,
     },
