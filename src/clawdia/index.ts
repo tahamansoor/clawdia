@@ -65,7 +65,7 @@ export class Clawdia {
    * Array of router instances registered with the application
    * Each router contains route handlers for a specific resource
    */
-  routers?: Router<typeof BaseModel>[] = [];
+  routers?: (new () => Router<typeof BaseModel>)[] = [];
 
   /**
    * Database connection string for PostgreSQL
@@ -112,7 +112,7 @@ export class Clawdia {
   constructor(config: ServerConfig) {
     this.port = config.port ?? 3003;
     this.globalMiddleware = config.globalMiddleware;
-    this.routers = config?.routers?.map((routerClass) => new routerClass());
+    this.routers = config?.routers;
     this.connectionURI = config?.db?.connectionURI;
     if (this.connectionURI) {
       this.db = new Pool({
@@ -242,14 +242,15 @@ export class Clawdia {
    */
   private createRouteMap() {
     for (const router of this.routers ?? []) {
-      const middlewares: Middleware[] = Reflect.getMetadata(
-        MIDDLEWARE_KEY,
+      const routerInstance = new router();
+      const middlewares: Middleware[] = getMetaData(
         router,
+        MIDDLEWARE_KEY,
       ) ?? [];
-      const methodNames = this.getAllMethodNames(router);
+      const methodNames = this.getAllMethodNames(routerInstance);
 
       for (const methodName of methodNames) {
-        const method = (router as any)[methodName];
+        const method = (routerInstance as any)[methodName];
 
         middlewares.push(...(getMetaData<Middleware[]>(
           method,
@@ -261,10 +262,10 @@ export class Clawdia {
           ROUTES_KEY,
         );
         const fullPath = cleanPath(
-          `${cleanPath(router.routeName)}/${cleanPath(routeMetaData[0].path)}`,
+          `${cleanPath(routerInstance.routeName)}/${cleanPath(routeMetaData[0].path)}`,
         );
         const key = `${routeMetaData[0].method}:${fullPath}`;
-        this.routeMap.set(key, { fn: method.bind(router), middlewares });
+        this.routeMap.set(key, { fn: method.bind(routerInstance), middlewares });
       }
     }
   }
