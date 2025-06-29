@@ -7,10 +7,10 @@ import { HttpMethods } from "../enums";
  *
  * @param path - The route path
  */
-export function Delete(path: string) {
-  return function (
-    target: any,
-    propertyKey: string,
+export function Delete(path: string): MethodDecorator {
+  return function<T>(
+    target: Object,
+    propertyKey: string | symbol,
     descriptor: PropertyDescriptor,
   ) {
     // Ensure the method descriptor exists
@@ -26,7 +26,7 @@ export function Delete(path: string) {
     routes.push({
       method: HttpMethods.DELETE,
       path: path || "/",
-      handlerName: propertyKey,
+      handlerName: propertyKey.toString(),
     });
 
     // Store metadata on the method itself

@@ -1,6 +1,6 @@
 import { PoolOptions } from "pg";
-import { Middleware } from "./middleware.interface";
 import { Router } from "../router";
+import { Middleware } from "../types";
 import { BaseModel } from "../orm";
 export interface ServerConfig {
   port?: number;

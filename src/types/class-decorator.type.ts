@@ -1,0 +1,1 @@
+export type ClassDecorator<T extends Object> = (target: T) => void

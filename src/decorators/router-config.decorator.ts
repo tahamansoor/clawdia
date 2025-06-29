@@ -66,7 +66,7 @@ import { BaseModel } from "../orm";
  */
 export function RouterConfig<T extends typeof BaseModel>(
   options: RouterConfigOptions<T>,
-) {
+): ClassDecorator {
   /**
    * The decorator function that applies configuration to a router class
    * 

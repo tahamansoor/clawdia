@@ -1,8 +1,7 @@
-import { ROUTES_KEY } from "../constants";
+import { MIDDLEWARE_KEY, ROUTES_KEY } from "../constants";
 import { HttpMethods } from "../enums";
 import { cleanPath, getMetaData, showBanner } from "../helpers";
 import {
-  Middleware,
   RequestContext,
   ResponseContext,
   RouteDefinition,
@@ -14,6 +13,7 @@ import { createServer } from "node:http";
 import { BaseModel } from "../orm";
 import { Pool } from "pg";
 import { Router } from "../router";
+import { Middleware } from "../types";
 
 /**
  * Clawdia - A lightweight, fast Node.js backend framework
@@ -82,7 +82,10 @@ export class Clawdia {
    * Format: `${HttpMethod}:${path}` -> handlerFunction
    * @private
    */
-  private readonly routeMap: Map<string, Function> = new Map();
+  private readonly routeMap: Map<
+    string,
+    { fn: Function; middlewares?: Middleware[] }
+  > = new Map();
 
   /**
    * Creates a new Clawdia server instance
@@ -147,6 +150,7 @@ export class Clawdia {
     try {
       if (this.db) {
         await this.db.query("SELECT 1").catch((error) => {
+          this.logger.error(error);
           throw error;
         });
         this.logger.info("Clawdia connected to the database");
@@ -160,7 +164,7 @@ export class Clawdia {
         };
         const resCtx: ResponseContext = {
           raw: res,
-          return: (status: number, body: any) => {
+          return<T = any>(status: number, body: T) {
             res.statusCode = status;
             res.setHeader("Content-Type", "application/json");
             res.end(JSON.stringify(body));
@@ -178,9 +182,13 @@ export class Clawdia {
           });
           return;
         }
-        await this.runMiddleware(this.globalMiddleware ?? [], reqCtx, resCtx);
         try {
-          await method(reqCtx, resCtx);
+          await this.runMiddleware(
+            [...(this.globalMiddleware ?? []), ...(method.middlewares ?? [])],
+            reqCtx,
+            resCtx,
+          );
+          await method.fn(reqCtx, resCtx);
         } catch (err) {
           this.logger.error("Error handling request:", JSON.stringify(err));
           resCtx.return(500, { message: "Internal Server Error" });
@@ -233,10 +241,19 @@ export class Clawdia {
    */
   private createRouteMap() {
     for (const router of this.routers ?? []) {
+      const middlewares: Middleware[] = Reflect.getMetadata(
+        MIDDLEWARE_KEY,
+        router,
+      ) ?? [];
       const methodNames = this.getAllMethodNames(router);
 
       for (const methodName of methodNames) {
         const method = (router as any)[methodName];
+
+        middlewares.push(...(getMetaData<Middleware[]>(
+          method,
+          MIDDLEWARE_KEY,
+        ) ?? []));
 
         const routeMetaData: RouteDefinition[] = getMetaData(
           method,
@@ -246,7 +263,7 @@ export class Clawdia {
           `${cleanPath(router.routeName)}/${cleanPath(routeMetaData[0].path)}`,
         );
         const key = `${routeMetaData[0].method}:${fullPath}`;
-        this.routeMap.set(key, method.bind(router));
+        this.routeMap.set(key, { fn: method.bind(router), middlewares });
       }
     }
   }
@@ -319,10 +336,13 @@ export class Clawdia {
     reqCtx: RequestContext,
     resCtx: ResponseContext,
   ) {
-    for (const middleware of middlewares) {
-      await middleware.apply(reqCtx, resCtx, () => {
-        return;
-      });
-    }
+    const instances = middlewares.map(M => new M());
+    let idx = 0;
+    const next = async () => {
+      if (idx < instances.length) {
+        await instances[idx++].apply(reqCtx, resCtx, next);
+      }
+    };
+    await next();
   }
 }

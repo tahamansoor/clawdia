@@ -1,29 +1,25 @@
 import { Router } from "../router";
 import { User } from "./user.model";
-import { RouterConfig } from "../decorators";
-import { Get, Post } from "../decorators"; // Assuming these decorators exist
+import { RouterConfig, UseMiddleware } from "../decorators";
+import { Get, Post } from "../decorators";
 import { RequestContext, ResponseContext } from "../interfaces";
 import { Logger } from "../logger";
-import { log } from "node:console";
+import { LoggerMiddleware } from "./logger.middleware";
 
 /**
  * Example UserRouter extending Router with correct decorator usage
- *
- * 1. Apply the RouterConfig decorator to the router class, not a method
- * 2. Use the correct generic parameter (typeof User)
- * 3. Provide both required options: model and route
  */
 @RouterConfig({
   model: User,
   route: "/users",
 })
+@UseMiddleware(LoggerMiddleware) // Apply middleware to all routes in this router
 export class UserRouter extends Router<typeof User> {
   /**
    * Example GET method to fetch all users
    */
   @Get("/")
   async getAllUsers(req: RequestContext, res: ResponseContext) {
-    // The model property is available from the base Router class
     const users = await this.model.findAll();
     res.return(200, users);
   }

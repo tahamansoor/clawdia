@@ -7,11 +7,11 @@ import { HttpMethods } from "../enums";
  *
  * @param path - The route path
  */
-export function Patch(path: string) {
+export function Patch(path: string): MethodDecorator{
   return function (
-    target: any,
-    propertyKey: string,
-    descriptor: PropertyDescriptor,
+    target: Object,
+    propertyKey: string | symbol,
+    descriptor: TypedPropertyDescriptor<any>,
   ) {
     // Ensure the method descriptor exists
     if (!descriptor || typeof descriptor.value !== "function") {
@@ -26,7 +26,7 @@ export function Patch(path: string) {
     routes.push({
       method: HttpMethods.PATCH,
       path: path || "/",
-      handlerName: propertyKey,
+      handlerName: propertyKey.toString(),
     });
 
     // Store metadata on the method itself

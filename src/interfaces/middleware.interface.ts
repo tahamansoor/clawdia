@@ -1,7 +1,7 @@
 import { RequestContext } from "./request-context.interface";
 import { ResponseContext } from "./response-context.interface";
 import { NextFunction } from "../types";
-export interface Middleware {
+export interface IMiddleware {
   apply(
     req: RequestContext,
     res: ResponseContext,

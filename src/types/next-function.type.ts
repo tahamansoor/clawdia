@@ -1,1 +1,1 @@
-export type NextFunction = () => void;
+export type NextFunction = () => Promise<void> | void;
