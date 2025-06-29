@@ -1,5 +1,5 @@
 {
-  "name": "@tahamansoor/clawdia",
+  "name": "clawdia",
   "version": "0.1.0",
   "description": "a light-weight fast nodejs back-end framework",
   "repository": {
@@ -12,8 +12,8 @@
     "dist"
   ],
   "scripts": {
-    "build": "tsc",
-    "publish": "npm run build && npm publish"
+  "build": "tsc",
+  "publish:npm": "npm publish --access public"
   },
   "author": "Taha Mansoor",
   "license": "ISC",
@@ -25,8 +25,5 @@
   },
   "devDependencies": {
     "@types/pg": "^8.15.2"
-  },
-  "publishConfig": {
-    "registry": "https://npm.pkg.github.com"
   }
 }
