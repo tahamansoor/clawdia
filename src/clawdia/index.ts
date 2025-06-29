@@ -148,6 +148,7 @@ export class Clawdia {
    */
   async listen() {
     try {
+      this.logger.info("Starting Clawdia server...");
       if (this.db) {
         await this.db.query("SELECT 1").catch((error) => {
           this.logger.error(error);
