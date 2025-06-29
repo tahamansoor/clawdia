@@ -13,7 +13,7 @@ import { UserRouter } from "./user.router";
 env.configure({
   autoReload: true, // Automatically reload environment variables if not found
   autoReloadRetryCount: 2, // Number of retries for auto-reloading
-  filePath: ".env.local", // Path to the environment file
+  filePath: ".env", // Path to the environment file
   errorOnNotFound: true, // Throw an error if a variable is not found after retries
 })
 
