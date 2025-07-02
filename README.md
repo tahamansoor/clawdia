@@ -12,16 +12,40 @@ Clawdia is a lightweight, decorator-based Node.js web framework with built-in OR
 ## Quick Start
 
 ```ts
-import { Clawdia } from "clawdia";
+import { Clawdia, env, Logger } from "clawdia";
 import { UserRouter } from "./routers/User.router";
 
-const app = new Clawdia({
-  port: 3003,
-  db: { connectionURI: process.env.DB_URI! },
-  routers: [UserRouter],
+env.configure({
+  autoReload: true, // Automatically reload environment variables if not found
+  autoReloadRetryCount: 2, // Number of retries for auto-reloading
+  filePath: ".env", // Path to the environment file
+  errorOnNotFound: true, // Throw an error if a variable is not found after retries
+})
+
+/**
+ * create an instance of Clawdia
+ */
+const server = new Clawdia({
+  port: 3003, // default port will 3003 if not prvided
+  routers: [UserRouter], // list of routers
+  db: {
+    // database configuration
+    // use env.get to get environment variables, add default values if needed
+    connectionURI: env.get(
+      "DATABASE_URL", "postgres://postgres:password@localhost:5432/clawdia"
+    ),
+    options: {
+      query_timeout: 100000,
+    },
+  },
 });
 
-app.listen();
+// Start the server
+server
+  .listen()
+  .then(() => Logger.info("Server started successfully"))
+  .catch((err) => Logger.error("Failed to start server:", err));
+
 ```
 
 Look at the [example](/src/examples)

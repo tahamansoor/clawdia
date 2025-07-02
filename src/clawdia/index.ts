@@ -48,7 +48,7 @@ export class Clawdia {
    * Logger instance for framework-level logging
    * @private
    */
-  private logger = Logger;
+  private logger: typeof Logger = Logger;
 
   /**
    * The port number the server will listen on
@@ -216,7 +216,9 @@ export class Clawdia {
    * @returns {Promise<any>} The parsed request body or an empty object
    * @private
    */
-  private async parseBody(req: IncomingMessage): Promise<any> {
+  private async parseBody(
+    req: IncomingMessage,
+  ): Promise<Record<string, unknown>> {
     return new Promise((resolve) => {
       let body = "";
       req.on("data", (chunk) => (body += chunk));
@@ -243,19 +245,16 @@ export class Clawdia {
   private createRouteMap() {
     for (const router of this.routers ?? []) {
       const routerInstance = new router();
-      const middlewares: Middleware[] = getMetaData(
-        router,
-        MIDDLEWARE_KEY,
-      ) ?? [];
+      const middlewares: Middleware[] =
+        getMetaData(router, MIDDLEWARE_KEY) ?? [];
       const methodNames = this.getAllMethodNames(routerInstance);
 
       for (const methodName of methodNames) {
         const method = (routerInstance as any)[methodName];
 
-        middlewares.push(...(getMetaData<Middleware[]>(
-          method,
-          MIDDLEWARE_KEY,
-        ) ?? []));
+        middlewares.push(
+          ...(getMetaData<Middleware[]>(method, MIDDLEWARE_KEY) ?? []),
+        );
 
         const routeMetaData: RouteDefinition[] = getMetaData(
           method,
@@ -265,7 +264,10 @@ export class Clawdia {
           `${cleanPath(routerInstance.routeName)}/${cleanPath(routeMetaData[0].path)}`,
         );
         const key = `${routeMetaData[0].method}:${fullPath}`;
-        this.routeMap.set(key, { fn: method.bind(routerInstance), middlewares });
+        this.routeMap.set(key, {
+          fn: method.bind(routerInstance),
+          middlewares,
+        });
       }
     }
   }
@@ -338,7 +340,7 @@ export class Clawdia {
     reqCtx: RequestContext,
     resCtx: ResponseContext,
   ) {
-    const instances = middlewares.map(M => new M());
+    const instances = middlewares.map((M) => new M());
     let idx = 0;
     const next = async () => {
       if (idx < instances.length) {
