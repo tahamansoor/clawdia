@@ -1,0 +1,28 @@
+# EditorConfig for Clawdia Backend Framework
+root = true
+
+[*]
+charset = utf-8
+end_of_line = lf
+insert_final_newline = true
+trim_trailing_whitespace = true
+
+# Use 2 spaces everywhere (JS, TS, JSON, HTML, etc.)
+[*.{js,ts,json,html,css,scss,yml,yaml}]
+indent_style = space
+indent_size = 2
+
+# Markdown: allow trailing whitespace (for line breaks)
+[*.md]
+trim_trailing_whitespace = false
+indent_style = space
+indent_size = 2
+
+# Shell scripts: use tabs if you prefer (optional)
+[*.sh]
+indent_style = tab
+
+# Ignore lock files if needed (optional)
+[package-lock.json]
+insert_final_newline = false
+trim_trailing_whitespace = false

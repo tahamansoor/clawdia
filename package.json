@@ -1,6 +1,6 @@
 {
   "name": "clawdia",
-  "version": "0.1.3",
+  "version": "0.1.4",
   "description": "a light-weight fast nodejs back-end framework",
   "repository": {
     "type": "git",
@@ -23,7 +23,8 @@
     "back-end",
     "back-end framework",
     "light-weight",
-    "fast"
+    "fast",
+    "clawdia"
   ],
   "dependencies": {
     "pg": "^8.16.0",
