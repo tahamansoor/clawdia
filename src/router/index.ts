@@ -126,11 +126,13 @@ export abstract class Router<TModel extends typeof BaseModel>
     res: ResponseContext,
   ): Promise<void> {
     try {
+      this.logger.debug(req.params);
       if (!req.params?.id) {
         res.return(400, { message: "Missing ID parameter" });
         return;
       }
-      const id = req.params.id;
+      const id = Number(req.params.id);
+      this.logger.info(`Finding ${this.model.name} by ID: ${id}`);
       const record = await this.model.findOne({ where: { id } });
       if (!record) {
         res.return(404, { message: "Record not found" });
@@ -143,6 +145,7 @@ export abstract class Router<TModel extends typeof BaseModel>
         error as any,
       );
       res.return(500, { message: "Internal server error" });
+      throw error;
     }
   }
 

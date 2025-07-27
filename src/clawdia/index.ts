@@ -14,6 +14,7 @@ import { BaseModel } from "../orm";
 import { Pool } from "pg";
 import { Router } from "../router";
 import { Middleware } from "../types";
+import { RouteMapper } from "../route-mapper";
 
 /**
  * Clawdia - A lightweight, fast Node.js backend framework
@@ -82,10 +83,7 @@ export class Clawdia {
    * Format: `${HttpMethod}:${path}` -> handlerFunction
    * @private
    */
-  private readonly routeMap: Map<
-    string,
-    { fn: Function; middlewares?: Middleware[] }
-  > = new Map();
+  private readonly routeMap = new RouteMapper();
 
   /**
    * Creates a new Clawdia server instance
@@ -158,9 +156,11 @@ export class Clawdia {
       }
       this.createRouteMap();
       const server = createServer(async (req, res) => {
+        const reqUrl = new URL(`http://${req.headers.host}${req.url}`);
         const reqCtx: RequestContext = {
           headers: req.headers as Record<string, string>,
           body: await this.parseBody(req),
+          query: Object.fromEntries(reqUrl.searchParams.entries()),
           raw: req,
         };
         const resCtx: ResponseContext = {
@@ -176,20 +176,21 @@ export class Clawdia {
 
         if (!method) {
           resCtx.return(404, {
-            message: "not found",
-            availableRoutes: Array.from(this.routeMap.entries()).map(
-              ([path, methods]) => ({ path, methods }),
-            ),
+            message: `Can not ${req.method} ${req.url}`,
           });
           return;
         }
         try {
           await this.runMiddleware(
-            [...(this.globalMiddleware ?? []), ...(method.middlewares ?? [])],
+            [
+              ...(this.globalMiddleware ?? []),
+              ...(method.handler.middlewares ?? []),
+            ],
             reqCtx,
             resCtx,
           );
-          await method.fn(reqCtx, resCtx);
+          reqCtx.params = method.params;
+          await method.handler.fn(reqCtx, resCtx);
         } catch (err) {
           this.logger.error("Error handling request:", JSON.stringify(err));
           resCtx.return(500, { message: "Internal Server Error" });
@@ -263,8 +264,7 @@ export class Clawdia {
         const fullPath = cleanPath(
           `${cleanPath(routerInstance.routeName)}/${cleanPath(routeMetaData[0].path)}`,
         );
-        const key = `${routeMetaData[0].method}:${fullPath}`;
-        this.routeMap.set(key, {
+        this.routeMap.add(routeMetaData[0].method, fullPath, {
           fn: method.bind(routerInstance),
           middlewares,
         });
@@ -319,9 +319,7 @@ export class Clawdia {
    * @private
    */
   private findMethod(httpMethod: string, url: string) {
-    return this.routeMap.get(
-      `${Object.values(HttpMethods).find((method) => method === httpMethod)! as string}:${cleanPath(url)}`,
-    );
+    return this.routeMap.find(httpMethod, cleanPath(url));
   }
   /**
    * Executes a series of middleware functions in sequence
