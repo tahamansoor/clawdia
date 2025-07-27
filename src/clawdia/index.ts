@@ -156,11 +156,13 @@ export class Clawdia {
       }
       this.createRouteMap();
       const server = createServer(async (req, res) => {
-        const reqUrl = new URL(`http://${req.headers.host}${req.url}`);
+        const reqUrl = new URL(
+          `http://${req.headers.host ?? "localhost"}${req.url}`,
+        );
         const reqCtx: RequestContext = {
           headers: req.headers as Record<string, string>,
           body: await this.parseBody(req),
-          query: Object.fromEntries(reqUrl.searchParams.entries()),
+          query: Object.fromEntries(reqUrl?.searchParams?.entries()),
           raw: req,
         };
         const resCtx: ResponseContext = {
@@ -172,7 +174,10 @@ export class Clawdia {
           },
         };
 
-        const method = this.findMethod(req.method ?? "GET", req.url ?? "/");
+        const method = this.findMethod(
+          req.method?.toUpperCase() ?? "GET",
+          req.url ?? "/",
+        );
 
         if (!method) {
           resCtx.return(404, {

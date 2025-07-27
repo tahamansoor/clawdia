@@ -5,13 +5,16 @@ export class RouteMapper {
   methods: Record<string, RouteNode> = {};
 
   add(method: string, path: string, handler: RouteHandler) {
+    const normalizedMethod = method.toUpperCase();
     const parts = path.split("/").filter(Boolean);
-    if (!this.methods[method]) this.methods[method] = new RouteNode("");
-    this.methods[method].addRoute(parts, handler);
+    if (!this.methods[normalizedMethod])
+      this.methods[normalizedMethod] = new RouteNode("");
+    this.methods[normalizedMethod].addRoute(parts, handler);
   }
 
   find(method: string, path: string) {
+    const normalizedMethod = method.toUpperCase();
     const parts = path.split("/").filter(Boolean);
-    return this.methods[method]?.match(parts) ?? null;
+    return this.methods[normalizedMethod]?.match(parts) ?? null;
   }
 }

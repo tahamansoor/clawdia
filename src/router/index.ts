@@ -145,7 +145,6 @@ export abstract class Router<TModel extends typeof BaseModel>
         error as any,
       );
       res.return(500, { message: "Internal server error" });
-      throw error;
     }
   }
 
