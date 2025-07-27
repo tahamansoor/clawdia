@@ -49,8 +49,8 @@ export class RouteNode {
     // dynamic match
     if (this.paramChild) {
       const paramName = this.paramChild.segment.slice(1);
-      params[paramName] = head;
-      const result = this.paramChild.match(rest, params);
+      const newParams = { ...params, [paramName]: head };
+      const result = this.paramChild.match(rest, newParams);
       if (result) return result;
     }
 

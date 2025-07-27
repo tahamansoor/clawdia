@@ -1,6 +1,7 @@
 import { Middleware } from "./middleware.type";
+import { RouteHandlerFunction } from "./param-handler-function.type";
 
 export type RouteHandler = {
-  fn: Function;
+  fn: RouteHandlerFunction;
   middlewares?: Middleware[];
 };

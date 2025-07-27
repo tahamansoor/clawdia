@@ -131,8 +131,7 @@ export abstract class Router<TModel extends typeof BaseModel>
         res.return(400, { message: "Missing ID parameter" });
         return;
       }
-      const id = Number(req.params.id);
-      this.logger.info(`Finding ${this.model.name} by ID: ${id}`);
+      const id = req.params.id;
       const record = await this.model.findOne({ where: { id } });
       if (!record) {
         res.return(404, { message: "Record not found" });
