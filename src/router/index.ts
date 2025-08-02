@@ -126,6 +126,7 @@ export abstract class Router<TModel extends typeof BaseModel>
     res: ResponseContext,
   ): Promise<void> {
     try {
+      this.logger.debug(req.params);
       if (!req.params?.id) {
         res.return(400, { message: "Missing ID parameter" });
         return;
